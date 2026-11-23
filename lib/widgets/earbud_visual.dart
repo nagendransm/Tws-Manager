@@ -20,11 +20,13 @@ class EarbudVisual extends StatelessWidget {
   Widget build(BuildContext context) {
     final sideLabel = isLeft ? "L" : "R";
     final sideName = isLeft ? "Left Earbud" : "Right Earbud";
-    final batteryColor = batteryLevel > 50
-        ? const Color(0xFF00F5D4)
-        : batteryLevel > 20
-            ? const Color(0xFFFEE440)
-            : const Color(0xFFFF5964);
+    final batteryColor = !isConnected || batteryLevel <= 0
+        ? Colors.white38
+        : batteryLevel > 50
+            ? const Color(0xFF00F5D4)
+            : batteryLevel > 20
+                ? const Color(0xFFFEE440)
+                : const Color(0xFFFF5964);
 
     return GestureDetector(
       onTap: onTap,
@@ -165,7 +167,7 @@ class EarbudVisual extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  isConnected ? "$batteryLevel%" : "--",
+                  isConnected && batteryLevel > 0 ? "$batteryLevel%" : "--",
                   style: TextStyle(
                     color: batteryColor,
                     fontSize: 11,

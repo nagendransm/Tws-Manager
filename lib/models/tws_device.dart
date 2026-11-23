@@ -2,8 +2,8 @@ class TwsDevice {
   final String name;
   final String address;
   final bool isConnected;
-  final int leftBattery;
-  final int rightBattery;
+  final int leftBattery; // -1 if disconnected or unknown
+  final int rightBattery; // -1 if disconnected or unknown
   final int caseBattery;
   final bool isBattleMode;
   final bool isEncActive;
@@ -17,13 +17,13 @@ class TwsDevice {
     required this.name,
     required this.address,
     required this.isConnected,
-    required this.leftBattery,
-    required this.rightBattery,
-    required this.caseBattery,
+    this.leftBattery = -1,
+    this.rightBattery = -1,
+    this.caseBattery = -1,
     this.isBattleMode = false,
     this.isEncActive = true,
     this.bluetoothVersion = "Bluetooth 5.3",
-    this.driverSize = "13mm Dynamic Driver",
+    this.driverSize = "Dynamic Audio Driver",
     this.audioCodec = "AAC / SBC",
     this.signalStrengthRssi = -55,
     required this.lastConnected,
@@ -61,7 +61,16 @@ class TwsDevice {
     );
   }
 
-  // Calculate estimated listening hours (Mivi DuoPods K2 has ~8h continuous per charge, 40h total with case)
-  double get estimatedEarbudHours => (leftBattery.clamp(0, 100) / 100.0) * 8.0;
-  double get estimatedTotalHours => estimatedEarbudHours + ((caseBattery.clamp(0, 100) / 100.0) * 32.0);
+  // Calculate estimated listening hours
+  double get estimatedEarbudHours {
+    if (!isConnected || leftBattery <= 0) return 0.0;
+    return (leftBattery.clamp(0, 100) / 100.0) * 8.0;
+  }
+
+  double get estimatedTotalHours {
+    if (!isConnected) return 0.0;
+    final earbudHours = estimatedEarbudHours;
+    final caseHours = caseBattery > 0 ? (caseBattery.clamp(0, 100) / 100.0) * 32.0 : 0.0;
+    return earbudHours + caseHours;
+  }
 }

@@ -66,7 +66,6 @@ class SpecsScreen extends StatelessWidget {
 
             _buildSpecGroup("Noise Control & Microphones", [
               _buildSpecRow("Environmental Noise (ENC)", "AI-ENC Powered by Dual HD Mics"),
-              _buildSpecRow("Active Noise Cancellation (ANC)", "Not supported (Passive in-ear seal)"),
               _buildSpecRow("Microphone Config", "Dual HD Mics with AI background suppression"),
             ]),
             const SizedBox(height: 16),

@@ -14,6 +14,13 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
   bool _windReduction = true;
   bool _voiceFocus = true;
   bool _isTestingMic = false;
+  String _micProfile = "Enhanced (Outdoor / Traffic)";
+
+  final List<String> _micProfiles = [
+    "Enhanced (Outdoor / Traffic)",
+    "Studio Voice (Podcast & Calls)",
+    "Standard HD",
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +32,7 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
         backgroundColor: const Color(0xFF0C0E14),
         elevation: 0,
         title: const Text(
-          "ANC & AI-ENC Noise Control",
+          "AI-ENC Call Noise Filter",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
         ),
       ),
@@ -34,15 +41,15 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ANC vs ENC Fact Card
+            // AI-ENC Overview Banner (Clean, no text overlay)
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF1E2838), Color(0xFF121620)],
+                  colors: [Color(0xFF0E2A2B), Color(0xFF121620)],
                 ),
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0xFF00BBF9).withValues(alpha: 0.3)),
+                border: Border.all(color: const Color(0xFF00F5D4).withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,31 +59,42 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00BBF9).withValues(alpha: 0.2),
+                          color: const Color(0xFF00F5D4).withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.info_rounded, color: Color(0xFF00BBF9), size: 20),
+                        child: const Icon(Icons.mic_external_on_rounded, color: Color(0xFF00F5D4), size: 22),
                       ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        "Hardware Specification Overview",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "AI-ENC Environmental Noise Cancellation",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              "Dual HD Microphones Active",
+                              style: TextStyle(
+                                color: Color(0xFF00F5D4),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  _buildComparisonRow(
-                    title: "Active Noise Cancellation (ANC)",
-                    status: "Hardware Not Supported",
-                    statusColor: const Color(0xFFFF5964),
-                    description: "Mivi DuoPods K2 uses an ergonomic in-ear silicone seal for passive noise isolation instead of motorized anti-phase speaker cancellation.",
-                  ),
-                  const Divider(color: Colors.white12, height: 22),
-                  _buildComparisonRow(
-                    title: "AI-ENC (Environmental Noise Cancellation)",
-                    status: "Supported & Active (Dual Mics)",
-                    statusColor: const Color(0xFF00F5D4),
-                    description: "Dual HD microphones analyze environmental noise and AI filters out traffic, chatter, and wind so your voice is transmitted crystal clear on calls.",
+                  const SizedBox(height: 12),
+                  const Text(
+                    "AI algorithms constantly isolate your voice from background traffic, wind, and ambient chatter during calls so listeners hear only you.",
+                    style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4),
                   ),
                 ],
               ),
@@ -98,34 +116,38 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00F5D4).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(12),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00F5D4).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.record_voice_over_rounded, color: Color(0xFF00F5D4), size: 22),
                             ),
-                            child: const Icon(Icons.mic_external_on_rounded, color: Color(0xFF00F5D4), size: 22),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "AI-ENC Call Clarity",
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Noise Cancellation on Calls",
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                  ),
+                                  Text(
+                                    dev.isEncActive ? "Enabled (Filtering Noise)" : "Disabled",
+                                    style: TextStyle(
+                                      color: dev.isEncActive ? const Color(0xFF00F5D4) : Colors.white38,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                dev.isEncActive ? "Dual HD Microphones Active" : "Disabled",
-                                style: TextStyle(
-                                  color: dev.isEncActive ? const Color(0xFF00F5D4) : Colors.white38,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                       Switch(
                         value: dev.isEncActive,
@@ -144,7 +166,7 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
                     const SizedBox(height: 12),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text("Wind Noise Reduction", style: TextStyle(color: Colors.white, fontSize: 13)),
+                      title: const Text("Wind Noise Reduction", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
                       subtitle: const Text("Suppresses turbulent wind gusts across the stem mics", style: TextStyle(color: Colors.white54, fontSize: 11)),
                       value: _windReduction,
                       activeThumbColor: const Color(0xFF00F5D4),
@@ -152,13 +174,75 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
                     ),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text("Voice Frequency Focus", style: TextStyle(color: Colors.white, fontSize: 13)),
-                      subtitle: const Text("Amplifies human vocal cords while trimming background hum", style: TextStyle(color: Colors.white54, fontSize: 11)),
+                      title: const Text("Voice Frequency Focus", style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                      subtitle: const Text("Boosts vocal frequencies while silencing low-frequency rumble", style: TextStyle(color: Colors.white54, fontSize: 11)),
                       value: _voiceFocus,
                       activeThumbColor: const Color(0xFF00F5D4),
                       onChanged: (v) => setState(() => _voiceFocus = v),
                     ),
                   ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Call Noise Environment Preset
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFF161922),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Call Clarity Environment Profile",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Choose the intensity of background noise filtering for your environment.",
+                    style: TextStyle(color: Colors.white54, fontSize: 11),
+                  ),
+                  const SizedBox(height: 12),
+                  ...List.generate(_micProfiles.length, (index) {
+                    final p = _micProfiles[index];
+                    final isSelected = _micProfile == p;
+                    return GestureDetector(
+                      onTap: () => setState(() => _micProfile = p),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFF00F5D4).withValues(alpha: 0.12) : const Color(0xFF0F1117),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFF00F5D4) : Colors.white12,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              p,
+                              style: TextStyle(
+                                color: isSelected ? const Color(0xFF00F5D4) : Colors.white70,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                fontSize: 12,
+                              ),
+                            ),
+                            Icon(
+                              isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                              color: isSelected ? const Color(0xFF00F5D4) : Colors.white24,
+                              size: 18,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
@@ -176,12 +260,12 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Call Clarity Simulator",
+                    "Microphone Test & Preview",
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    "Preview how your voice sounds to listeners with AI-ENC background noise filtering.",
+                    "Speak into your earphones to verify the noise filter clarity in real time.",
                     style: TextStyle(color: Colors.white54, fontSize: 11),
                   ),
                   const SizedBox(height: 14),
@@ -190,12 +274,12 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _isTestingMic ? const Color(0xFFFF5964) : const Color(0xFF00F5D4),
                         foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
                       icon: Icon(_isTestingMic ? Icons.stop_rounded : Icons.mic_rounded),
                       label: Text(
-                        _isTestingMic ? "Stop Recording (Testing...)" : "Test My Voice With ENC",
+                        _isTestingMic ? "Stop Recording (Testing...)" : "Test My Voice Clarity",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       onPressed: () {
@@ -205,7 +289,7 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
                         if (!_isTestingMic) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text("AI-ENC filtered sample verified! Crystal clear voice captured."),
+                              content: Text("Microphone clarity verified! Ambient noise filtered."),
                               backgroundColor: Color(0xFF00F5D4),
                             ),
                           );
@@ -219,36 +303,6 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildComparisonRow({
-    required String title,
-    required String status,
-    required Color statusColor,
-    required String description,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: statusColor.withValues(alpha: 0.4)),
-              ),
-              child: Text(status, style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Text(description, style: const TextStyle(color: Colors.white60, fontSize: 11, height: 1.3)),
-      ],
     );
   }
 }

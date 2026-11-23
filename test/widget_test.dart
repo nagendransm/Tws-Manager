@@ -6,8 +6,8 @@ void main() {
     await tester.pumpWidget(const TwsManagerApp());
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.textContaining('Mivi DuoPods K2'), findsWidgets);
     expect(find.textContaining('Battery & Playtime'), findsOneWidget);
     expect(find.textContaining('Battle Mode'), findsWidgets);
+    expect(find.textContaining('AI-ENC Noise Filter'), findsOneWidget);
   });
 }

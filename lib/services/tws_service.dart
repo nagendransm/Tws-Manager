@@ -7,12 +7,12 @@ class TwsService extends ChangeNotifier {
   static const MethodChannel _channel = MethodChannel('com.mivi.twsmanager/bluetooth');
 
   TwsDevice _device = TwsDevice(
-    name: "Mivi DuoPods K2",
-    address: "Connected (Bluetooth 5.3)",
-    isConnected: true,
-    leftBattery: 85,
-    rightBattery: 85,
-    caseBattery: 90,
+    name: "Scanning for Earphones...",
+    address: "Waiting for connection...",
+    isConnected: false,
+    leftBattery: -1,
+    rightBattery: -1,
+    caseBattery: -1,
     isBattleMode: false,
     isEncActive: true,
     lastConnected: DateTime.now(),
@@ -22,10 +22,11 @@ class TwsService extends ChangeNotifier {
   bool _isPlayingFinderTone = false;
   String _activeFinderSide = "NONE";
   List<Map<String, dynamic>> _pairedDevices = [];
+  Timer? _autoConnectTimer;
 
   // Equalizer 5-Band settings (-10dB to +10dB)
   List<double> _eqBands = [4.0, 2.0, 0.0, 3.0, 5.0]; // 60Hz, 230Hz, 910Hz, 3.6kHz, 14kHz
-  int _bassBoost = 65; // 0 to 100%
+  int _bassBoost = 60; // 0 to 100%
   String _activePreset = "Mivi Signature";
 
   TwsDevice get device => _device;
@@ -38,29 +39,65 @@ class TwsService extends ChangeNotifier {
   String get activePreset => _activePreset;
 
   TwsService() {
+    _initChannelListener();
     refreshConnection();
+    // Auto-detect and auto-connect timer: checks Bluetooth connection every 2 seconds
+    _autoConnectTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      refreshConnection(silent: true);
+    });
   }
 
-  Future<void> refreshConnection() async {
-    _isScanning = true;
+  void _initChannelListener() {
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'onBluetoothStateChanged') {
+        if (call.arguments is Map) {
+          _updateFromNativeData(Map<String, dynamic>.from(call.arguments as Map));
+        }
+      }
+    });
+  }
+
+  void _updateFromNativeData(Map<String, dynamic> info) {
+    final connected = (info['isConnected'] as bool?) ?? false;
+    final name = (info['name'] as String?) ?? "";
+    final address = (info['address'] as String?) ?? "";
+    final battery = (info['batteryLevel'] as num?)?.toInt() ?? -1;
+    final driver = (info['driverSize'] as String?) ?? "Dynamic Audio Driver";
+
+    if (connected) {
+      _device = _device.copyWith(
+        name: name.isNotEmpty ? name : "Connected Earphones",
+        address: address,
+        isConnected: true,
+        leftBattery: battery >= 0 ? battery : -1,
+        rightBattery: battery >= 0 ? battery : -1,
+        caseBattery: battery >= 0 ? battery : -1,
+        driverSize: driver,
+        lastConnected: DateTime.now(),
+      );
+    } else {
+      _device = _device.copyWith(
+        name: "No Earphones Connected",
+        address: "Turn on Bluetooth and connect earbuds",
+        isConnected: false,
+        leftBattery: -1,
+        rightBattery: -1,
+        caseBattery: -1,
+      );
+    }
     notifyListeners();
+  }
+
+  Future<void> refreshConnection({bool silent = false}) async {
+    if (!silent) {
+      _isScanning = true;
+      notifyListeners();
+    }
 
     try {
       final info = await _channel.invokeMethod<Map>('getConnectedTwsInfo');
       if (info != null) {
-        final battery = (info['batteryLevel'] as num?)?.toInt() ?? 85;
-        final connected = (info['isConnected'] as bool?) ?? true;
-        final name = (info['name'] as String?) ?? "Mivi DuoPods K2";
-        final address = (info['address'] as String?) ?? "BT-5.3-AAC";
-
-        _device = _device.copyWith(
-          name: name.isEmpty ? "Mivi DuoPods K2" : name,
-          address: address,
-          isConnected: connected,
-          leftBattery: battery > 0 ? battery : 85,
-          rightBattery: battery > 0 ? battery : 80,
-          lastConnected: DateTime.now(),
-        );
+        _updateFromNativeData(Map<String, dynamic>.from(info));
       }
 
       final devices = await _channel.invokeListMethod<Map>('getPairedDevices');
@@ -70,14 +107,16 @@ class TwsService extends ChangeNotifier {
     } catch (e) {
       debugPrint("Native Bluetooth check: $e");
     } finally {
-      _isScanning = false;
-      notifyListeners();
+      if (!silent) {
+        _isScanning = false;
+        notifyListeners();
+      }
     }
   }
 
   void toggleConnection() {
-    _device = _device.copyWith(isConnected: !_device.isConnected);
-    notifyListeners();
+    // Manually trigger immediate refresh / re-scan
+    refreshConnection();
   }
 
   void toggleBattleMode() {
@@ -168,11 +207,16 @@ class TwsService extends ChangeNotifier {
   Future<void> _applyEqNative() async {
     try {
       for (int i = 0; i < _eqBands.length; i++) {
-        // Android EQ band levels in millibels (-1000 to +1000)
         final millibels = (_eqBands[i] * 100).toInt();
         await _channel.invokeMethod('setEqualizerBand', {'band': i, 'level': millibels});
       }
       await _channel.invokeMethod('setBassBoost', {'strength': (_bassBoost * 10)});
     } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _autoConnectTimer?.cancel();
+    super.dispose();
   }
 }

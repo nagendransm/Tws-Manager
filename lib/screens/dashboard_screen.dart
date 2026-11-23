@@ -34,26 +34,30 @@ class DashboardScreen extends StatelessWidget {
               child: const Icon(Icons.headset_rounded, color: Color(0xFF00BBF9), size: 20),
             ),
             const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  dev.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    dev.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  dev.isConnected ? "Connected • AAC 5.3" : "Disconnected",
-                  style: TextStyle(
-                    color: dev.isConnected ? const Color(0xFF00F5D4) : Colors.white38,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
+                  Text(
+                    dev.isConnected ? "Connected • AAC 5.3" : "Waiting for connection...",
+                    style: TextStyle(
+                      color: dev.isConnected ? const Color(0xFF00F5D4) : Colors.white38,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -178,16 +182,16 @@ class DashboardScreen extends StatelessWidget {
                     children: [
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: dev.isConnected ? const Color(0xFFFF5964) : const Color(0xFF00F5D4),
+                          foregroundColor: dev.isConnected ? const Color(0xFF00F5D4) : const Color(0xFF00BBF9),
                           side: BorderSide(
-                            color: dev.isConnected ? const Color(0xFFFF5964).withValues(alpha: 0.4) : const Color(0xFF00F5D4).withValues(alpha: 0.4),
+                            color: dev.isConnected ? const Color(0xFF00F5D4).withValues(alpha: 0.4) : const Color(0xFF00BBF9).withValues(alpha: 0.4),
                           ),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         ),
-                        icon: Icon(dev.isConnected ? Icons.bluetooth_connected_rounded : Icons.bluetooth_disabled_rounded, size: 16),
-                        label: Text(dev.isConnected ? "Disconnect" : "Connect TWS"),
-                        onPressed: () => service.toggleConnection(),
+                        icon: Icon(dev.isConnected ? Icons.bluetooth_connected_rounded : Icons.bluetooth_searching_rounded, size: 16),
+                        label: Text(dev.isConnected ? "Auto-Connected" : "Auto-Scanning..."),
+                        onPressed: () => service.refreshConnection(),
                       ),
                       const SizedBox(width: 12),
                       ElevatedButton.icon(
@@ -242,10 +246,10 @@ class DashboardScreen extends StatelessWidget {
                     );
                   },
                 ),
-                // AI-ENC Noise Cancellation Tile
+                // AI-ENC Noise Filter Tile (ANC option removed)
                 _buildActionTile(
                   context,
-                  title: "AI-ENC Audio",
+                  title: "AI-ENC Noise Filter",
                   subtitle: dev.isEncActive ? "Dual HD Mic Active" : "Disabled",
                   icon: Icons.record_voice_over_rounded,
                   accentColor: const Color(0xFF00F5D4),
