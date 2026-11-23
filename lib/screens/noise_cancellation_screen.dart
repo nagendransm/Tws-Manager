@@ -102,16 +102,18 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
             const SizedBox(height: 20),
 
             // AI-ENC Master Toggle Card
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: const Color(0xFF161922),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: dev.isEncActive ? const Color(0xFF00F5D4).withValues(alpha: 0.4) : Colors.white10,
+            Material(
+              color: const Color(0xFF161922),
+              borderRadius: BorderRadius.circular(22),
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: dev.isEncActive ? const Color(0xFF00F5D4).withValues(alpha: 0.4) : Colors.white10,
+                  ),
                 ),
-              ),
-              child: Column(
+                child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -184,6 +186,7 @@ class _NoiseCancellationScreenState extends State<NoiseCancellationScreen> {
                 ],
               ),
             ),
+          ),
             const SizedBox(height: 20),
 
             // Call Noise Environment Preset

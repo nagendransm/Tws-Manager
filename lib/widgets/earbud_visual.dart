@@ -35,8 +35,8 @@ class EarbudVisual extends StatelessWidget {
         children: [
           // Earbud Body with Glow
           Container(
-            width: 90,
-            height: 120,
+            width: 82,
+            height: 104,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: isLeft ? Alignment.topLeft : Alignment.topRight,
